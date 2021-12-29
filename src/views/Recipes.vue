@@ -289,20 +289,27 @@ export default {
     };
   },
   created: function () {
-    //this.$cookies.get('token')
-    this.getAllRecipes();
+
+    if(!this.$cookies.get('token')){
+      Vue.alert("You shall not pass!", "ERROR", "error");
+      this.$router.push("/");
+    }else{
+      this.getAllRecipes();
+    }
+
   },
 
   methods: {
     getAllRecipes: function () {
-      
-        const headers = { Authorization : "Bearer " + this.$cookies.get('token'), hakan : "arayici" };
+      const headers = {
+        Authorization: "Bearer " + this.$cookies.get("token"),
+        hakan: "arayici",
+      };
 
-
-     // console.log(headers);
+      // console.log(headers);
 
       axios
-        .get("http://localhost:8081/api/recipe/getAll",  {headers})
+        .get("http://localhost:8081/api/recipe/getAll", { headers })
         .then((res) => {
           this.recipes = res.data;
           console.log(this.recipes);
@@ -313,18 +320,16 @@ export default {
       if (this.recipeName === "") {
         this.getAllRecipes();
       } else {
-
-         const headers = { Authorization : "Bearer " + this.$cookies.get('token'), hakan : "arayici" };
-
-
-        console.log({headers});
-
         axios
           .get("http://localhost:8081/api/recipe/get", {
-            params: { recipeName: this.recipeName }, headers : { Authorization : "Bearer " + this.$cookies.get('token'), hakan : "arayici" }
-          }  )
+            params: { recipeName: this.recipeName },
+            headers: {
+              Authorization: "Bearer " + this.$cookies.get("token"),
+              hakan: "arayici",
+            },
+          })
           .then((res) => {
-            this.recipes = [res.data];
+            this.recipes = res.data ? [res.data] : [];
             this.instructions = null;
             this.ingredients = null;
             this.selectedRecipe = null;
@@ -341,8 +346,6 @@ export default {
     },
 
     addRecipe: function () {
-      console.log(Vue.dialog.alert);
-
       this.saveState = 1;
 
       this.recipeNameToSave = null;
@@ -363,6 +366,10 @@ export default {
       axios
         .delete("http://localhost:8081/api/recipe/delete", {
           params: { recipeID: this.selectedRecipe.recipeID },
+          headers: {
+            Authorization: "Bearer " + this.$cookies.get("token"),
+            hakan: "arayici",
+          },
         })
         .then(() => {
           this.instructions = null;
@@ -371,10 +378,7 @@ export default {
 
           Vue.alert("Recipe is Deleted", "SUCCESS", "success");
 
-          axios.get("http://localhost:8081/api/recipe/getAll").then((res) => {
-            this.recipes = res.data;
-            console.log(this.recipes);
-          });
+          this.getAllRecipes();
         })
         .catch(function (error) {
           console.log(error.toJSON());
@@ -387,23 +391,33 @@ export default {
     },
 
     saveRecipe: function () {
+
+       const headers = {
+          Authorization: "Bearer " + this.$cookies.get("token"),
+          hakan: "arayici",
+        };
+
+
       // add recipe
       if (this.saveState === 1) {
+       
+
         axios
-          .post("http://localhost:8081/api/recipe/create", {
-            createDate: moment(String(new Date())).format("DD-MM-YYYY HH:mm"),
-            recipeName: this.recipeNameToSave,
-            vegetarian: this.suitableForVegetariansToSave,
-            suitablePeopleCount: this.suitablePeopleCountToSave,
-            instructions: this.instructionsToSave,
-            ingredientList: this.ingredientsToSave,
-          })
+          .post(
+            "http://localhost:8081/api/recipe/create",
+            {
+              createDate: moment(String(new Date())).format("DD-MM-YYYY HH:mm"),
+              recipeName: this.recipeNameToSave,
+              vegetarian: this.suitableForVegetariansToSave,
+              suitablePeopleCount: this.suitablePeopleCountToSave,
+              instructions: this.instructionsToSave,
+              ingredientList: this.ingredientsToSave,
+            },
+            { headers }
+          )
           .then((res) => {
             console.log(res);
-            axios.get("http://localhost:8081/api/recipe/getAll").then((res) => {
-              this.recipes = res.data;
-              console.log(this.recipes);
-            });
+            this.getAllRecipes();
 
             this.saveState = 0;
             Vue.alert("Recipe is Added", "SUCCESS", "success");
@@ -428,13 +442,10 @@ export default {
             suitablePeopleCount: this.suitablePeopleCountToSave,
             instructions: this.instructionsToSave,
             ingredientList: this.ingredientsToSave,
-          })
+          },{headers})
           .then((res) => {
             console.log(res);
-            axios.get("http://localhost:8081/api/recipe/getAll").then((res) => {
-              this.recipes = res.data;
-              console.log(this.recipes);
-            });
+            this.getAllRecipes();
             Vue.alert("Recipe is Updated");
             this.saveState = 0;
           })

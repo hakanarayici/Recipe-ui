@@ -70,8 +70,9 @@ export default {
       
           this.token = res.data.jwttoken;
           console.log(this.token);
-          this.$cookies.set('token',this.token);
+          this.$cookies.set('token',this.token, 15*60);
           Vue.alert("You are authenticated", "SUCCESS", "success");
+          this.$router.push("/recipes");
         })
         .catch(function (error) {
           console.log(error.toJSON());
