@@ -239,34 +239,27 @@
       <div class="row">
         <div class="col-10"></div>
 
-       
-
         <div class="col-2">
-
-           
           <div class="row text-right"></div>
           <div class="col-3"></div>
           <div class="col-9">
- <div class="input-group">
-            <button
-              class="btn btn-outline-secondary"
-              type="button"
-              v-on:click="cancelSave"
-            >
-              Cancel
-            </button>
-            <button
-              class="btn btn-outline-secondary"
-              type="button"
-              v-on:click="saveRecipe"
-            >
-              Save
-            </button>
+            <div class="input-group">
+              <button
+                class="btn btn-outline-secondary"
+                type="button"
+                v-on:click="cancelSave"
+              >
+                Cancel
+              </button>
+              <button
+                class="btn btn-outline-secondary"
+                type="button"
+                v-on:click="saveRecipe"
+              >
+                Save
+              </button>
+            </div>
           </div>
-
-          </div>
-
-         
         </div>
       </div>
     </div>
@@ -276,6 +269,7 @@
 <script>
 import axios from "axios";
 import moment from "moment";
+import Vue from "vue";
 
 export default {
   data() {
@@ -295,25 +289,40 @@ export default {
     };
   },
   created: function () {
+    //this.$cookies.get('token')
     this.getAllRecipes();
   },
 
   methods: {
     getAllRecipes: function () {
-      axios.get("http://localhost:8081/api/recipe/getAll").then((res) => {
-        this.recipes = res.data;
-        console.log(this.recipes);
-      });
+      
+        const headers = { Authorization : "Bearer " + this.$cookies.get('token'), hakan : "arayici" };
+
+
+     // console.log(headers);
+
+      axios
+        .get("http://localhost:8081/api/recipe/getAll",  {headers})
+        .then((res) => {
+          this.recipes = res.data;
+          console.log(this.recipes);
+        });
     },
 
     getRecipe: function () {
       if (this.recipeName === "") {
         this.getAllRecipes();
       } else {
+
+         const headers = { Authorization : "Bearer " + this.$cookies.get('token'), hakan : "arayici" };
+
+
+        console.log({headers});
+
         axios
           .get("http://localhost:8081/api/recipe/get", {
-            params: { recipeName: this.recipeName },
-          })
+            params: { recipeName: this.recipeName }, headers : { Authorization : "Bearer " + this.$cookies.get('token'), hakan : "arayici" }
+          }  )
           .then((res) => {
             this.recipes = [res.data];
             this.instructions = null;
@@ -332,6 +341,8 @@ export default {
     },
 
     addRecipe: function () {
+      console.log(Vue.dialog.alert);
+
       this.saveState = 1;
 
       this.recipeNameToSave = null;
@@ -358,7 +369,7 @@ export default {
           this.ingredients = null;
           this.selectedRecipe = null;
 
-          alert("deleted");
+          Vue.alert("Recipe is Deleted", "SUCCESS", "success");
 
           axios.get("http://localhost:8081/api/recipe/getAll").then((res) => {
             this.recipes = res.data;
@@ -393,13 +404,18 @@ export default {
               this.recipes = res.data;
               console.log(this.recipes);
             });
-            alert("saved");
+
             this.saveState = 0;
+            Vue.alert("Recipe is Added", "SUCCESS", "success");
           })
           .catch(function (error) {
             console.log(error.toJSON());
 
-            alert("could not add");
+            Vue.alert(
+              "Recipe is not Added, Something went wrong",
+              "SUCCESS",
+              "error"
+            );
           });
       } else if (this.saveState === 2) {
         //update
@@ -419,7 +435,7 @@ export default {
               this.recipes = res.data;
               console.log(this.recipes);
             });
-            alert("saved");
+            Vue.alert("Recipe is Updated");
             this.saveState = 0;
           })
           .catch(function (error) {

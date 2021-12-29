@@ -46,6 +46,7 @@
 
 <script>
 import axios from "axios";
+import Vue from 'vue';
 
 export default {
   data() {
@@ -66,14 +67,16 @@ export default {
           password: this.pass,
         })
         .then((res) => {
-          console.log(res);
+      
           this.token = res.data.jwttoken;
           console.log(this.token);
+          this.$cookies.set('token',this.token);
+          Vue.alert("You are authenticated", "SUCCESS", "success");
         })
         .catch(function (error) {
           console.log(error.toJSON());
           if(error.toJSON().status === 403){
-              alert('user name or password is incorrect')
+              Vue.alert("You are not authenticated", "ERROR", "error");
           }
         });
 
