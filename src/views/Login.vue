@@ -1,52 +1,68 @@
 <template>
   <div>
+    <h1 class="text-muted">WELCOME TO RECIPES</h1>
+    <img class="mb-4" src="../assets/img.jpg" alt="" width="150" height="150" />
+    <img
+      class="mb-4"
+      src="../assets/img2.jpg"
+      alt=""
+      width="150"
+      height="150"
+    />
+    <img
+      class="mb-4"
+      src="../assets/img3.jpg"
+      alt=""
+      width="150"
+      height="150"
+    />
+    <img
+      class="mb-4"
+      src="../assets/img4.jpg"
+      alt=""
+      width="150"
+      height="150"
+    />
+
     <div class="container">
       <div class="row">
-        <div class="col-5">
-          <div class="input-group mb-3">
-            <input
-              v-model="user"
-              type="text"
-              class="form-control"
-              placeholder="username"
-              aria-label="username"
-              aria-describedby="button-addon2"
-            />
-          </div>
-        </div>
-      </div>
+        <div class="col-lg-4 col-md-6 col-sm-8 mx-auto">
+          <div class="card login">
+            <h1>Sign In</h1>
+            <form class="form-group">
+              <input
+                v-model="user"
+                type="text"
+                class="form-control"
+                placeholder="username"
+                aria-label="username"
+              />
+              <input
+                v-model="pass"
+                type="password"
+                class="form-control"
+                placeholder="password"
+                aria-label="password"
+              />
 
-      <div class="row">
-        <div class="col-5">
-          <div class="input-group mb-3">
-            <input
-              v-model="pass"
-              type="password"
-              class="form-control"
-              placeholder="password"
-              aria-label="password"
-            />
-            <button
-              class="btn btn-outline-secondary btn-dark"
-              type="button"
-              id="btnSearch"
-              v-on:click="authanticate"
-            >
-              Login
-            </button>
+              <button
+                class="w-100 btn btn-lg btn-primary btn-dark"
+                type="button"
+                v-on:click="authanticate"
+              >
+                Login
+              </button>
+            </form>
           </div>
         </div>
       </div>
     </div>
-
   </div>
-
-  
 </template>
 
 <script>
 import axios from "axios";
-import Vue from 'vue';
+import Vue from "vue";
 
 export default {
   data() {
@@ -67,21 +83,18 @@ export default {
           password: this.pass,
         })
         .then((res) => {
-      
           this.token = res.data.jwttoken;
           console.log(this.token);
-          this.$cookies.set('token',this.token, 15*60);
+          this.$cookies.set("token", this.token, 15 * 60);
           Vue.alert("You are authenticated", "SUCCESS", "success");
           this.$router.push("/recipes");
         })
         .catch(function (error) {
           console.log(error.toJSON());
-          if(error.toJSON().status === 403){
-              Vue.alert("You are not authenticated", "ERROR", "error");
+          if (error.toJSON().status === 403) {
+            Vue.alert("You are not authenticated", "ERROR", "error");
           }
         });
-
-
     },
   },
 };

@@ -1,8 +1,33 @@
 <template>
   <div>
+    <h1 class="text-muted">DISCOVER MY RECIPES</h1>
+    <img class="mb-4" src="../assets/img.jpg" alt="" width="350" height="200" />
+    <img
+      class="mb-4"
+      src="../assets/img2.jpg"
+      alt=""
+      width="300"
+      height="200"
+    />
+    <img
+      class="mb-4"
+      src="../assets/img3.jpg"
+      alt=""
+      width="300"
+      height="200"
+    />
+    <img
+      class="mb-4"
+      src="../assets/img4.jpg"
+      alt=""
+      width="350"
+      height="200"
+    />
+
     <div class="container p-1 p-md-3 mb-1 text-white rounded bg-dark">
       <div class="row">
-        <div class="col">
+        <div class="col-1"></div>
+        <div class="col-10">
           <div class="input-group mb-3">
             <input
               type="text"
@@ -29,7 +54,7 @@
 
     <br />
 
-    <div class="container">
+    <div class="container p-1 p-md-3 mb-1 text-white rounded bg-dark">
       <table class="table table-dark table-striped" id="recipesTable">
         <thead>
           <tr>
@@ -89,16 +114,12 @@
         <div class="col-10"></div>
         <div class="col-2">
           <div class="btn-group" role="group" align="right">
-            <button
-              type="button"
-              class="btn btn-outline-primary"
-              v-on:click="addRecipe"
-            >
+            <button type="button" class="btn btn-dark" v-on:click="addRecipe">
               Add
             </button>
             <button
               type="button"
-              class="btn btn-outline-primary"
+              class="btn btn-dark"
               :disabled="!selectedRecipe"
               v-on:click="updateRecipe"
             >
@@ -106,7 +127,7 @@
             </button>
             <button
               type="button"
-              class="btn btn-outline-primary"
+              class="btn btn-dark"
               v-on:click="deleteRecipe"
               :disabled="!selectedRecipe"
             >
@@ -289,14 +310,12 @@ export default {
     };
   },
   created: function () {
-
-    if(!this.$cookies.get('token')){
+    if (!this.$cookies.get("token")) {
       Vue.alert("You shall not pass!", "ERROR", "error");
       this.$router.push("/");
-    }else{
+    } else {
       this.getAllRecipes();
     }
-
   },
 
   methods: {
@@ -313,6 +332,15 @@ export default {
         .then((res) => {
           this.recipes = res.data;
           console.log(this.recipes);
+        })
+        .catch(function (error) {
+          console.log(error.toJSON());
+          if (error.toJSON().status === 403) {
+            Vue.alert("You shall not pass", "ERROR", "error");
+            this.$router.push("/");
+          } else {
+            Vue.alert("Oops something went wrong", "ERROR", "error");
+          }
         });
     },
 
@@ -333,6 +361,18 @@ export default {
             this.instructions = null;
             this.ingredients = null;
             this.selectedRecipe = null;
+          })
+          .catch(function (error) {
+            console.log(error.toJSON());
+            if (error.toJSON().status === 403) {
+              Vue.alert("You shall not pass", "ERROR", "error");
+              this.$router.push("/");
+            }else if (error.toJSON().status === 404) {
+              Vue.alert("Sorry We couldn't find the recipe", "ERROR", "error");
+              
+            } else {
+              Vue.alert("Oops something went wrong", "ERROR", "error");
+            }
           });
       }
     },
@@ -375,14 +415,22 @@ export default {
           this.instructions = null;
           this.ingredients = null;
           this.selectedRecipe = null;
-
+          this.recipeName = null;
           Vue.alert("Recipe is Deleted", "SUCCESS", "success");
 
           this.getAllRecipes();
         })
         .catch(function (error) {
           console.log(error.toJSON());
-          alert("error");
+          if (error.toJSON().status === 403) {
+            Vue.alert("You shall not pass", "ERROR", "error");
+            this.$router.push("/");
+          }else if (error.toJSON().status === 404) {
+              Vue.alert("Sorry We couldn't find the recipe maybe it was deleted", "ERROR", "error");
+             
+            }else {
+            Vue.alert("Oops something went wrong", "ERROR", "error");
+          }
         });
     },
 
@@ -391,28 +439,29 @@ export default {
     },
 
     saveRecipe: function () {
+      const headers = {
+        Authorization: "Bearer " + this.$cookies.get("token"),
+        hakan: "arayici",
+      };
 
-       const headers = {
-          Authorization: "Bearer " + this.$cookies.get("token"),
-          hakan: "arayici",
+      const data={
+         
+          recipeName: this.recipeNameToSave,
+          vegetarian: this.suitableForVegetariansToSave,
+          suitablePeopleCount: this.suitablePeopleCountToSave,
+          instructions: this.instructionsToSave,
+          ingredientList: this.ingredientsToSave,
         };
-
 
       // add recipe
       if (this.saveState === 1) {
-       
+        data["createDate"] = moment(String(new Date())).format("DD-MM-YYYY HH:mm");
 
+        console.log(data);
         axios
           .post(
             "http://localhost:8081/api/recipe/create",
-            {
-              createDate: moment(String(new Date())).format("DD-MM-YYYY HH:mm"),
-              recipeName: this.recipeNameToSave,
-              vegetarian: this.suitableForVegetariansToSave,
-              suitablePeopleCount: this.suitablePeopleCountToSave,
-              instructions: this.instructionsToSave,
-              ingredientList: this.ingredientsToSave,
-            },
+            data,
             { headers }
           )
           .then((res) => {
@@ -424,25 +473,32 @@ export default {
           })
           .catch(function (error) {
             console.log(error.toJSON());
-
-            Vue.alert(
-              "Recipe is not Added, Something went wrong",
-              "SUCCESS",
-              "error"
-            );
+            if (error.toJSON().status === 403) {
+              Vue.alert("You shall not pass", "ERROR", "error");
+              this.$router.push("/");
+            }else if (error.toJSON().status === 406) {
+              Vue.alert("Recipe is already exists", "ERROR", "error");
+             
+            } else {
+              Vue.alert("Oops something went wrong", "ERROR", "error");
+            }
           });
       } else if (this.saveState === 2) {
         //update
         axios
-          .put("http://localhost:8081/api/recipe/update", {
-            recipeID: this.selectedRecipe.recipeID,
-            createDate: this.selectedRecipe.createDate,
-            recipeName: this.recipeNameToSave,
-            vegetarian: this.suitableForVegetariansToSave,
-            suitablePeopleCount: this.suitablePeopleCountToSave,
-            instructions: this.instructionsToSave,
-            ingredientList: this.ingredientsToSave,
-          },{headers})
+          .put(
+            "http://localhost:8081/api/recipe/update",
+            {
+              recipeID: this.selectedRecipe.recipeID,
+              createDate: this.selectedRecipe.createDate,
+              recipeName: this.recipeNameToSave,
+              vegetarian: this.suitableForVegetariansToSave,
+              suitablePeopleCount: this.suitablePeopleCountToSave,
+              instructions: this.instructionsToSave,
+              ingredientList: this.ingredientsToSave,
+            },
+            { headers }
+          )
           .then((res) => {
             console.log(res);
             this.getAllRecipes();
@@ -451,8 +507,15 @@ export default {
           })
           .catch(function (error) {
             console.log(error.toJSON());
-
-            alert("could not add");
+            if (error.toJSON().status === 403) {
+              Vue.alert("You shall not pass", "ERROR", "error");
+              this.$router.push("/");
+            }else if (error.toJSON().status === 404) {
+              Vue.alert("Sorry We couldn't find the recipe maybe it was deleted", "ERROR", "error");
+          
+            } else {
+              Vue.alert("Oops something went wrong", "ERROR", "error");
+            }
           });
       }
     },
