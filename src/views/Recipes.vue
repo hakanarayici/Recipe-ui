@@ -389,7 +389,7 @@ export default {
       this.saveState = 1;
 
       this.recipeNameToSave = null;
-      this.suitableForVegetariansToSave = null;
+      this.suitableForVegetariansToSave = false;
       this.suitablePeopleCountToSave = null;
       this.ingredientsToSave = [];
       this.instructionsToSave = null;

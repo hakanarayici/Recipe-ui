@@ -1,4 +1,8 @@
 # recipe-ui
+Developed by Hakan Arayici in Visual Studio Code
+
+When you run project Application is served by using 8080 port
+
 
 ## Project setup
 ```
