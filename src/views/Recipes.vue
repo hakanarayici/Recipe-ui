@@ -436,6 +436,7 @@ export default {
 
     addIngredient: function () {
       this.ingredientsToSave.push(this.ingredientToAdd);
+      this.ingredientToAdd = null;
     },
 
     saveRecipe: function () {
@@ -479,7 +480,11 @@ export default {
             }else if (error.toJSON().status === 406) {
               Vue.alert("Recipe is already exists", "ERROR", "error");
              
-            } else {
+            }else if (error.toJSON().status === 400) {
+              Vue.alert("Some parameters are missing!", "ERROR", "error");
+             
+            }
+             else {
               Vue.alert("Oops something went wrong", "ERROR", "error");
             }
           });
@@ -504,6 +509,9 @@ export default {
             this.getAllRecipes();
             Vue.alert("Recipe is Updated");
             this.saveState = 0;
+            this.selectedRecipe = null;
+            this.instructions = null;
+            this.ingredients = null
           })
           .catch(function (error) {
             console.log(error.toJSON());
@@ -513,6 +521,12 @@ export default {
             }else if (error.toJSON().status === 404) {
               Vue.alert("Sorry We couldn't find the recipe maybe it was deleted", "ERROR", "error");
           
+            }else if (error.toJSON().status === 406) {
+              Vue.alert("Recipe with this name is already exists", "ERROR", "error");
+             
+            }else if (error.toJSON().status === 400) {
+              Vue.alert("Some parameters are missing!", "ERROR", "error");
+             
             } else {
               Vue.alert("Oops something went wrong", "ERROR", "error");
             }
