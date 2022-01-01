@@ -93,6 +93,8 @@ export default {
           console.log(error.toJSON());
           if (error.toJSON().status === 403) {
             Vue.alert("You are not authenticated", "ERROR", "error");
+          }else{
+             Vue.alert("Oops something happened. Maybe our servers are down. Please try again later", "ERROR", "error");
           }
         });
     },

@@ -467,6 +467,13 @@ export default {
           )
           .then((res) => {
             console.log(res);
+
+            this.recipes = null;
+            this.instructions = null;
+            this.ingredients = null;
+            this.selectedRecipe = null;
+            this.recipeName = null;
+
             this.getAllRecipes();
 
             this.saveState = 0;
@@ -509,9 +516,13 @@ export default {
             this.getAllRecipes();
             Vue.alert("Recipe is Updated");
             this.saveState = 0;
-            this.selectedRecipe = null;
+          
+            this.recipes = null;
             this.instructions = null;
-            this.ingredients = null
+            this.ingredients = null;
+            this.selectedRecipe = null;
+            this.recipeName = null;
+
           })
           .catch(function (error) {
             console.log(error.toJSON());
